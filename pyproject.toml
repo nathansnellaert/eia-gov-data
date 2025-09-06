@@ -1,0 +1,17 @@
+[project]
+name = "eia-gov-data"
+version = "1.0.0"
+requires-python = ">=3.11"
+dependencies = [
+    "httpx",
+    "pyarrow",
+    "boto3",
+    "tenacity",
+    "ratelimit",
+    "duckdb",
+    "requests",
+    "pyiceberg",
+]
+
+[tool.uv]
+dev-dependencies = []
