@@ -1,45 +1,46 @@
 import os
 
-# Set environment variables for this run
+# Set environment variables for local testing
 os.environ['CONNECTOR_NAME'] = 'eia-gov-data'
-os.environ['RUN_ID'] = 'local-dev-test'
+os.environ['RUN_ID'] = 'local-dev'
 os.environ['ENABLE_HTTP_CACHE'] = 'true'
-os.environ['CACHE_REQUESTS'] = 'false'
+os.environ['CACHE_REQUESTS'] = 'true'
 os.environ['WRITE_SNAPSHOT'] = 'false'
-os.environ['DISABLE_STATE'] = 'false'
 os.environ['STORAGE_BACKEND'] = 'local'
 os.environ['DATA_DIR'] = 'data'
+os.environ['MAX_PROCESS_MEMORY'] = '2'  # Limit to 2GB for testing
 
-# Test with just the TOTAL dataset
-from utils import validate_environment, upload_data
-import pyarrow as pa
-from assets.series.series import download_and_extract_in_memory, extract_series_metadata
-from assets.prices.prices import extract_time_series_data
+# Test with just one small dataset first
+from utils import validate_environment
+import subprocess
+import sys
+from pathlib import Path
 
 validate_environment()
 
-# Test with one dataset
-test_dataset = {"code": "TOTAL", "name": "Total Energy", "zip_path": "TOTAL.zip"}
-print(f"Testing with {test_dataset['name']} dataset...")
+# Test with NUC_STATUS first (smallest dataset)
+test_dataset = {"code": "NUC_STATUS", "name": "U.S. Nuclear Outages", "zip_path": "NUC_STATUS.zip"}
 
-# Download once
-content = download_and_extract_in_memory(test_dataset)
+print(f"Testing with {test_dataset['name']}...")
 
-# Extract series
-series_data = extract_series_metadata(content)
-for s in series_data:
-    s['dataset_code'] = test_dataset['code']
-    s['dataset_name'] = test_dataset['name']
-series_table = pa.Table.from_pylist(series_data)
-print(f"Series table: {len(series_table)} rows, {series_table.column_names}")
+cmd = [
+    sys.executable,
+    "process_dataset.py",
+    test_dataset['code'],
+    test_dataset['name'],
+    test_dataset['zip_path']
+]
 
-# Extract prices  
-prices_data = extract_time_series_data(content, test_dataset['code'])
-prices_table = pa.Table.from_pylist(prices_data)
-print(f"Prices table: {len(prices_table)} rows, {prices_table.column_names}")
+result = subprocess.run(
+    cmd,
+    cwd=Path(__file__).parent,
+    capture_output=True,
+    text=True,
+    timeout=600
+)
 
-# Upload
-upload_data(series_table, "series")
-upload_data(prices_table, "prices")
+print(result.stdout)
+if result.stderr:
+    print("STDERR:", result.stderr)
 
-print("Test complete!")
+print(f"Return code: {result.returncode}")
