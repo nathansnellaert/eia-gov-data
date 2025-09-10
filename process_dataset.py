@@ -86,7 +86,7 @@ def process_dataset(dataset_code: str, dataset_name: str, zip_path: str) -> None
     if series_data:
         series_table = pa.Table.from_pylist(series_data)
         print(f"Uploading {len(series_data)} series for {dataset_code}")
-        upload_data(series_table, f"{dataset_code.lower()}_series")
+        upload_data(series_table, f"eia_{dataset_code.lower()}_series")
         
         # Save state for series
         save_state(f"{dataset_code.lower()}_series", {
@@ -99,7 +99,7 @@ def process_dataset(dataset_code: str, dataset_name: str, zip_path: str) -> None
     if prices_data:
         prices_table = pa.Table.from_pylist(prices_data)
         print(f"Uploading {len(prices_data)} data points for {dataset_code}")
-        upload_data(prices_table, f"{dataset_code.lower()}_prices")
+        upload_data(prices_table, f"eia_{dataset_code.lower()}_prices")
         
         # Save state for prices
         save_state(f"{dataset_code.lower()}_prices", {
