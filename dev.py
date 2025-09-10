@@ -5,8 +5,7 @@ os.environ['CONNECTOR_NAME'] = 'eia-gov-data'
 os.environ['RUN_ID'] = 'local-dev'
 os.environ['ENABLE_HTTP_CACHE'] = 'true'
 os.environ['CACHE_REQUESTS'] = 'true'
-os.environ['WRITE_SNAPSHOT'] = 'false'
-os.environ['STORAGE_BACKEND'] = 'local'
+os.environ['CATALOG_TYPE'] = 'local'
 os.environ['DATA_DIR'] = 'data'
 os.environ['MAX_PROCESS_MEMORY'] = '2'  # Limit to 2GB for testing
 
